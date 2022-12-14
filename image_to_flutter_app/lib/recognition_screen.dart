@@ -9,6 +9,7 @@ import 'package:image_to_flutter_app/apikey.dart';
 import 'package:image_to_flutter_app/utils.dart';
 import 'dart:io';
 import 'dart:io' as Io;
+import 'package:http/http.dart' as http;
 
 class RecognitionScreen extends StatefulWidget {
   const RecognitionScreen({Key? key}) : super(key: key);
@@ -19,6 +20,8 @@ class RecognitionScreen extends StatefulWidget {
 
 class _RecognitionScreenState extends State<RecognitionScreen> {
   dynamic pickedImage = null;
+  String ocrResult = "";
+  bool scanning = true;
   optionsDialogue(BuildContext context) {
     return showDialog(
         context: context,
@@ -68,6 +71,7 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
     print("path: " + File(image.path).toString());
     setState(() {
       pickedImage = File(image.path);
+      scanning = true;
     });
     Navigator.pop(context);
 
@@ -76,8 +80,17 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
 
     String url = "https://api.ocr.space/parse/image";
 
-    var data = {"base64Image", "data:image/jpg;base64,$img64"};
+    var data = {"base64Image": "data:image/jpg;base64,$img64"};
     var header = {"apikey": key};
+
+    http.Response response = await http.post(url, body: data, headers: header);
+
+    Map result = jsonDecode(response.body);
+    print(result["ParsedResults"][0]["ParsedText"]);
+    setState(() {
+      ocrResult = result["ParsedResults"][0]["ParsedText"];
+      scanning = false;
+    });
   }
 
   @override
@@ -148,12 +161,13 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
                 height: 30,
               ),
               Text(
-                "Lorem Ipsum tipsum",
+                !scanning ? ocrResult : "Scanning...",
                 style: textStyle(
                   30,
                   Color.fromARGB(255, 105, 186, 253),
                   FontWeight.w800,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

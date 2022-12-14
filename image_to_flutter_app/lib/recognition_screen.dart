@@ -1,9 +1,14 @@
 // ignore_for_file: import_of_legacy_library_into_null_safe
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_to_flutter_app/apikey.dart';
 import 'package:image_to_flutter_app/utils.dart';
 import 'dart:io';
+import 'dart:io' as Io;
 
 class RecognitionScreen extends StatefulWidget {
   const RecognitionScreen({Key? key}) : super(key: key);
@@ -65,6 +70,14 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
       pickedImage = File(image.path);
     });
     Navigator.pop(context);
+
+    Uint8List bytes = Io.File(pickedImage.path).readAsBytesSync();
+    String img64 = base64Encode(bytes);
+
+    String url = "https://api.ocr.space/parse/image";
+
+    var data = {"base64Image", "data:image/jpg;base64,$img64"};
+    var header = {"apikey": key};
   }
 
   @override

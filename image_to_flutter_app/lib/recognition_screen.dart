@@ -3,6 +3,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:clipboard/clipboard.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_to_flutter_app/apikey.dart';
@@ -101,7 +103,19 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
         children: [
           FloatingActionButton(
             heroTag: null,
-            onPressed: () {},
+            onPressed: () {
+              // SnackBar snack;
+              FlutterClipboard.copy(ocrResult).then((value) {
+                SnackBar snack = SnackBar(
+                  content: Text(
+                    "Copied to clipboard",
+                    style: textStyle(18, Colors.white, FontWeight.w700),
+                  ),
+                  duration: Duration(seconds: 2),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snack);
+              });
+            },
             child: Icon(
               Icons.copy,
               size: 28,
@@ -113,7 +127,8 @@ class _RecognitionScreenState extends State<RecognitionScreen> {
           FloatingActionButton(
             backgroundColor: Color(0xffec360e),
             heroTag: null,
-            onPressed: () {},
+            onPressed: () =>
+                Share.text("Flutter OCR App", ocrResult, "text/plaintex"),
             child: Icon(
               Icons.share,
               size: 28,
